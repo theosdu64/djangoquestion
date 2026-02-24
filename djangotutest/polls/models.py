@@ -17,7 +17,22 @@ class Question(models.Model):
         now = timezone.now()
         difference = self.pub_date - now
         return difference.days 
+    
+    def get_choices(self):
+        choices = self.choice_set.all()
+        result = []
+        count = 0
 
+        for choice in choices:
+            count += choice.votes  
+        for choice in choices:
+            if count > 0:
+                choiceproperty = choice.votes / count
+            else:
+                choiceproperty = 0
+            result.append((choice.choice_text, int(round((choiceproperty) * 100)))) 
+        return result
+    
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=200)
