@@ -1,5 +1,6 @@
 from django.db import models
 import datetime
+from datetime import date
 from django.utils import timezone
 
 class Question(models.Model):
@@ -11,7 +12,11 @@ class Question(models.Model):
 
     def was_published_recently(self):
         return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
-
+    
+    def calcule_age(self):
+        now = timezone.now()
+        difference = self.pub_date - now
+        return difference.days 
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
