@@ -149,6 +149,17 @@ info :
 > What's up? → date : `2026-02-03 10:12:38+00:00`
 
 ---
+## 8.
+q = Question.objects.filter(question_text__contains="Qui")
+print(q)
+
+**Résultat :**
+[
+> Question: Contre qui le psg a-til gagne la LDC ?>,
+> Question: Qui est l'inventeur du btc ?>
+]
+```
+
 ## 9.
 q = Question(question_text="Qui est l'inventeur du btc ?", pub_date=timezone.now())
 q.save()
@@ -186,3 +197,12 @@ True
 **Résultat :**
 admin
 user
+
+2.2.3
+
+## 1
+q = Question.objects.get(id=2)
+print(q.calcule_age())
+
+**Résultat :**
+87
