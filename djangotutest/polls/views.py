@@ -7,14 +7,20 @@ from django.shortcuts import get_object_or_404, render
 from django.db.models import F
 from django.views import generic
 from django.db.models import Sum, Avg, Count, Max, Min
+from django.utils import timezone
 
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
-        """Return the last five published questions."""
-        return Question.objects.order_by("-pub_date")[:5]
+        """
+        Return the last five published questions (not including those set to be
+        published in the future).
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[
+            :5
+        ]
     
 class AllView(generic.ListView):
     template_name = "polls/all.html"
@@ -80,3 +86,12 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
+
+class DetailView(generic.DetailView):
+    ...
+
+    def get_queryset(self):
+        """
+        Excludes any questions that aren't published yet.
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now())
