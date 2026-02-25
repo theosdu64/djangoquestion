@@ -6,7 +6,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.db.models import F
 from django.views import generic
-
+from django.db.models import Sum, Avg, Count, Max, Min
 
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
@@ -23,12 +23,33 @@ class AllView(generic.ListView):
     def get_queryset(self):
         """Return the last five published questions."""
         return Question.objects.order_by("-pub_date")[:5]
-
+    
+def statistics(request):
+    stats = {}
+    
+    vote_par_sondage = Choice.objects.aggregate(total=Sum("votes"))['total'] or 0
+    nbSondage = Question.objects.count()
+    
+    stats.update(
+        vgVoteParSondage = int(vote_par_sondage / nbSondage)
+    )
+    stats.update(
+        Question.objects.aggregate(
+            total_questions=Count("id"),
+            lastQuestion=Max("pub_date")
+        )
+    )
+    stats.update(
+        Choice.objects.aggregate(
+            total_choices=Count("id"),
+            nb_vote=Sum("votes"),
+        )
+    )
+    return render(request, 'polls/statistics.html', {"stats": stats})   
 
 class DetailView(generic.DetailView):
     model = Question
     template_name = "polls/detail.html"
-
 
 class ResultsView(generic.DetailView):
     model = Question
