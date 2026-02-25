@@ -1,0 +1,17 @@
+<ul>
+{% for choice in question.choice_set.all %}
+    <li>
+        {{ choice.choice_text }} — {{ choice.votes }} vote(s)
+    </li>
+{% endfor %}
+</ul>
+
+<h2>Pourcentage</h2>
+
+<ul>
+{% for choice_text, percentage in question.get_choices %}
+    <li>
+        {{ choice_text }} — {{ percentage }} %
+    </li>
+{% endfor %}
+</ul>
