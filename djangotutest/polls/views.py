@@ -16,10 +16,6 @@ class IndexView(generic.ListView):
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
-        """
-        Return the last five published questions (not including those set to be
-        published in the future).
-        """
         return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[
             :10
         ]
@@ -33,11 +29,14 @@ class IndexView(generic.ListView):
         form = QuestionForm(request.POST)
 
         if form.is_valid():
-            question_text = form.cleaned_data["question_text"]
-            q = Question.objects.create(
-                question_text=question_text,
-                pub_date=timezone.now()
-            )
+            # question_text = form.cleaned_data["question_text"]
+            # q = Question.objects.create(
+            #     question_text=question_text,
+            #     pub_date=timezone.now()
+            # )
+            q = form.save(commit=False)
+            q.pub_date = timezone.now()
+            q.save()
             for c in range(1,6):
                 choice_text = {form.cleaned_data.get(f'choice{c}')}
                 if choice_text:
@@ -123,3 +122,18 @@ class DetailView(generic.DetailView) :
         Excludes any questions that aren't published yet.
         """
         return Question.objects.filter(pub_date__lte=timezone.now())
+    
+def create_question(request):
+    if request.method == "POST":
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = Question.objects.create( question_text=form.cleaned_data['question_text'], pub_date=form.cleaned_data['pub_date'])
+            choices = [ form.cleaned_data['choice1'],form.cleaned_data['choice2'], form.cleaned_data['choice3'], form.cleaned_data['choice4'], form.cleaned_data['choice5']]
+            for choice_text in choices:
+                if choice_text:
+                    Choice.objects.create( question=question,choice_text=choice_text,votes=0)
+            return redirect('polls:index')
+    else:
+        form = QuestionForm()
+
+    return render(request, 'polls/questionForm.html', {'form': form})
