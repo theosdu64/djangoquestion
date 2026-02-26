@@ -3,11 +3,13 @@ from django.urls import reverse
 from .models import Question,Choice
 from django.template import loader
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import F
 from django.views import generic
 from django.db.models import Sum, Avg, Count, Max, Min
 from django.utils import timezone
+from .forms import QuestionForm
+
 
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
@@ -19,8 +21,33 @@ class IndexView(generic.ListView):
         published in the future).
         """
         return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[
-            :5
+            :10
         ]
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["create_question_form"] = QuestionForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        form = QuestionForm(request.POST)
+
+        if form.is_valid():
+            question_text = form.cleaned_data["question_text"]
+            q = Question.objects.create(
+                question_text=question_text,
+                pub_date=timezone.now()
+            )
+            for c in range(1,6):
+                choice_text = {form.cleaned_data.get(f'choice{c}')}
+                if choice_text:
+                    q.choice_set.create(choice_text=choice_text)
+
+            return redirect("polls:index")
+
+        context = self.get_context_data()
+        context["create_question_form"] = form
+        return self.render_to_response(context)
     
 class AllView(generic.ListView):
     template_name = "polls/all.html"
@@ -36,13 +63,16 @@ def statistics(request):
     vote_par_sondage = Choice.objects.aggregate(total=Sum("votes"))['total'] or 0
     nbSondage = Question.objects.count()
     
+    last_question_id = Question.objects.aggregate(Max("id"))["id__max"]
+    last_question_text = Question.objects.get(id=last_question_id).question_text
+
     stats.update(
-        vgVoteParSondage = int(vote_par_sondage / nbSondage)
+        vgVoteParSondage = int(vote_par_sondage / nbSondage),
+        lastQuestion=last_question_text
     )
     stats.update(
         Question.objects.aggregate(
             total_questions=Count("id"),
-            lastQuestion=Max("pub_date")
         )
     )
     stats.update(
@@ -82,12 +112,10 @@ def vote(request, question_id):
     else:
         selected_choice.votes = F("votes") + 1
         selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
 
-class DetailView(generic.DetailView):
+
+class DetailView(generic.DetailView) : 
     ...
 
     def get_queryset(self):
