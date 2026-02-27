@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>{% block title %}Titre de la page{% endblock %}</title>
+</head>
+
+<body>
+    {% comment %} <div id="sidebar">
+        {% block sidebar %}
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/statistics/">Statistiques</a></li>
+        </ul>
+        {% endblock %}
+    </div> {% endcomment %}
+
+    <header>
+        {% block header %}
+        <img src="{% static 'polls/images/bebe.png' %}" alt="Logo Polls">
+        {% endblock %}
+    </header>
+
+    <main>
+        {% block main %}
+        {% endblock %}
+    </main>
+
+</body>
+</html>
