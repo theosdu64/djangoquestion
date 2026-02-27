@@ -1,7 +1,18 @@
-<h1>Créer une nouvelle question</h1>
+{% extends "base.html" %}
 
+{% load static %}
+{% block title %}
+    Créer une question
+{% endblock %}
+
+{% block header %}
+<img src="{% static 'polls/images/other.png' %}" alt="image other" width="100">
+{% endblock %}
+
+{% block main %}
 <form method="post">
     {% csrf_token %}
     {{ form }}
     <input type="submit" value="OK">
 </form>
+{% endblock %}
