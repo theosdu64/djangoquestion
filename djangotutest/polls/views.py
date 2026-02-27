@@ -123,17 +123,17 @@ class DetailView(generic.DetailView) :
         """
         return Question.objects.filter(pub_date__lte=timezone.now())
     
-# def create_question(request):
-#     if request.method == "POST":
-#         form = QuestionForm(request.POST)
-#         if form.is_valid():
-#             question = Question.objects.create( question_text=form.cleaned_data['question_text'], pub_date=form.cleaned_data['pub_date'])
-#             choices = [ form.cleaned_data['choice1'],form.cleaned_data['choice2'], form.cleaned_data['choice3'], form.cleaned_data['choice4'], form.cleaned_data['choice5']]
-#             for choice_text in choices:
-#                 if choice_text:
-#                     Choice.objects.create( question=question,choice_text=choice_text,votes=0)
-#             return redirect('polls:index')
-#     else:
-#         form = QuestionForm()
+def create_question(request):
+    if request.method == "POST":
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = Question.objects.create( question_text=form.cleaned_data['question_text'], pub_date=form.cleaned_data['pub_date'])
+            choices = [ form.cleaned_data['choice1'],form.cleaned_data['choice2'], form.cleaned_data['choice3'], form.cleaned_data['choice4'], form.cleaned_data['choice5']]
+            for choice_text in choices:
+                if choice_text:
+                    Choice.objects.create( question=question,choice_text=choice_text,votes=0)
+            return redirect('polls:index')
+    else:
+        form = QuestionForm()
 
-#     return render(request, 'polls/questionForm.html', {'form': form})
+    return render(request, 'polls/questionForm.html', {'form': form})
