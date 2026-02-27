@@ -1,3 +1,9 @@
+{% extends "base.html" %}
+{% block title %}
+    Accueil
+{% endblock %}
+
+{% block main %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'polls/style.css' %}" />
 {% if latest_question_list %}
@@ -27,3 +33,4 @@
 {% for question in latest_question_list %}
     <p>{{ question.question_text }}</p>
 {% endfor %}
+{% endblock %}
