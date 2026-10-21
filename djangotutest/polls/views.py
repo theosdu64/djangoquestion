@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from .models import Question,Choice
 from django.template import loader
 from django.http import Http404
@@ -9,7 +9,12 @@ from django.views import generic
 from django.db.models import Sum, Avg, Count, Max, Min
 from django.utils import timezone
 from .forms import QuestionForm
-
+from django.views.generic import CreateView, FormView
+from django.urls import reverse_lazy
+from .models import Question
+from .newform import ChoiceForm, QuestionFormModel
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
@@ -82,9 +87,9 @@ def statistics(request):
     )
     return render(request, 'polls/statistics.html', {"stats": stats})   
 
-class DetailView(generic.DetailView):
-    model = Question
-    template_name = "polls/detail.html"
+# class DetailView(generic.DetailView):
+#     model = Question
+#     template_name = "polls/detail.html"
 
 class ResultsView(generic.DetailView):
     model = Question
@@ -122,7 +127,8 @@ class DetailView(generic.DetailView) :
         Excludes any questions that aren't published yet.
         """
         return Question.objects.filter(pub_date__lte=timezone.now())
-    
+
+@login_required
 def create_question(request):
     if request.method == "POST":
         form = QuestionForm(request.POST)
@@ -137,3 +143,30 @@ def create_question(request):
         form = QuestionForm()
 
     return render(request, 'polls/questionForm.html', {'form': form})
+
+def create_question_form(request):
+
+    if request.method == "POST":
+        question_form = QuestionFormModel(request.POST)
+        choice_form = ChoiceForm(request.POST)
+
+        if question_form.is_valid() and choice_form.is_valid():
+            question = question_form.save()
+
+            for value in choice_form.cleaned_data.values():
+                if value:
+                    Choice.objects.create(
+                        question=question,
+                        choice_text=value
+                    )
+
+            return redirect("polls:index")
+
+    else:
+        question_form = QuestionFormModel()
+        choice_form = ChoiceForm()
+
+    return render(request, "polls/createquestionForm.html", {
+        "question_form": question_form,
+        "choice_form": choice_form
+    })

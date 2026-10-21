@@ -2,32 +2,47 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-    <title>{% block title %}Titre de la page{% endblock %}</title>
+    <meta charset="UTF-8">
+    <title>{% block title %}Mon Site{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
 </head>
 
 <body>
-    {% comment %} <div id="sidebar">
-        {% block sidebar %}
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/statistics/">Statistiques</a></li>
-        </ul>
-        {% endblock %}
-    </div> {% endcomment %}
 
-    <header>
-        {% block header %}
-        <p>-------------------Header du gabarit ----------------------------------------------------------</p>
-        <img src="{% static 'polls/images/bebe.png' %}" alt="Logo Polls" width="100">
-        <p>------------------Fin header du gabarit ----------------------------------------------------------</p>
-        {% endblock %}
-    </header>
+<header>
+    {% block header %}
 
-    <main>
-        {% block main %}
-        {% endblock %}
-    </main>
+    <div>
+
+        <div>
+            <img src="{% static 'polls/images/bebe.png' %}"width="100">
+        </div>
+
+        <div>
+            {% if user.is_authenticated %}
+                <span>Bonjour {{ user.username }}</span>
+
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Déconnexion</button>
+                </form>
+
+            {% else %}
+                <a href="{% url 'login' %}">Connexion</a>
+            {% endif %}
+        </div>
+
+    </div>
+
+    {% endblock %}
+</header>
+
+<hr>
+
+<main>
+    {% block main %}
+    {% endblock %}
+</main>
 
 </body>
 </html>

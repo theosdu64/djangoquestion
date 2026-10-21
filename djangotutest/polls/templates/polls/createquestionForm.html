@@ -1,0 +1,13 @@
+<h1>Créer une question</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <h2>Question</h2>
+    {{ question_form.as_p }}
+
+    <h2>Choix</h2>
+    {{ choice_form.as_p }}
+
+    <button type="submit">Enregistrer</button>
+</form>
