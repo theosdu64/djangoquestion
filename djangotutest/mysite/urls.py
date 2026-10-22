@@ -17,11 +17,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from debug_toolbar.toolbar import debug_toolbar_urls
+from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from polls.api_views import QuestionViewSet, AdminQuestionViewSet
+
+router = DefaultRouter()
+router.register('question', QuestionViewSet, basename='question')
+router.register('admin/question', AdminQuestionViewSet, basename='admin-question')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("polls/", include("polls.urls")),
-    path("api/", include("polls.api.urls")),
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/", include(router.urls)),
     path("accounts/", include("django.contrib.auth.urls")),
     ]
 urlpatterns += debug_toolbar_urls()
